@@ -18,18 +18,34 @@ app.get("/", (req, res) => {
     return res.sendFile("index.html");
 })
 
+let count = 0;
+
 //registering socket related configuration
 io.on("connection", (socket) => {
     console.log('A New WebSocket Connection is Ensteblished');
 
+    socket.emit("onWelcome", "Welcome!!");
+
+    socket.emit("countValueUpdated", count);
     //when a user disconnect with server we want to capture
 
+
+    socket.on("incrementCount", () => {
+        count++;
+        //line no 40 or below line emiting for specific connection or inividual 
+        // socket.emit("countValueUpdated", count);
+
+        //we want to broadcast to all active connection there io object or global server for web-socket
+        //whith the help of IO we can emting the event which treat as broadcast
+        io.emit("countValueUpdated", count);
+    });
+
     socket.on('disconnect', () => {
-        console.log("A User is Disconnected from The Server")
-    })
+        console.log("A User is Disconnected from The Server");
+    });
 });
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3002
 httpServer.listen(port, () => {
     console.log(`Server started @${port}`);
 })
