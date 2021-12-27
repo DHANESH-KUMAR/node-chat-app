@@ -40,6 +40,10 @@ io.on("connection", (socket) => {
         io.emit("countValueUpdated", count);
     });
 
+    socket.on("CaptureSentMessage", (message) => {
+        io.emit("CaptureOnReceive", message);
+    });
+
     socket.on('disconnect', () => {
         console.log("A User is Disconnected from The Server");
     });

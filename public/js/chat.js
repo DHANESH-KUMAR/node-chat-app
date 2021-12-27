@@ -23,4 +23,16 @@ socket.on("onWelcome", (welcomeData) => {
         msgContainer.innerHTML = "";
     }, 1000)
 
+});
+
+//sedning-messages
+document.getElementById("form_simple_msg").onsubmit = function(e) {
+    e.preventDefault();
+    const message = e.target.elements.txtMessage.value;
+    //message sent
+    socket.emit("CaptureSentMessage", message);
+}
+
+socket.on("CaptureOnReceive", (message) => {
+    console.log(message);
 })
