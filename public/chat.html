@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat-App</title>
+    <link rel="icon" href="./img/favicon.png" />
+    <link rel="stylesheet" href="./css/styles.css" />
+  </head>
+  <body>
+    <div class="chat">
+      <div class="chat__sidebar"></div>
+      <div class="chat__main">
+        <div id="messages" class="chat__messages"></div>
+        <div class="compose">
+          <form name="form_simple_msg" id="form_simple_msg">
+            <input id="txtMessage" type="text" placeholder="message.." />
+            <button>Send</button>
+          </form>
+
+          <button id="send-location">Share Location</button>
+        </div>
+      </div>
+    </div>
+
+    <script id="message-template" type="text/html">
+      <div class="message">
+        <p>
+          <span class="message__name">Some User Name</span>
+          <span class="message__meta">{{createdOn}}</span>
+        </p>
+        <p>{{message}}</p>
+      </div>
+    </script>
+
+    <script id="location-template" type="text/html">
+      <div>
+        <p>
+          <span class="message__name">Some User Name</span>
+          <span class="message__meta">{{createdOn}}</span>
+        </p>
+        <p>
+          <a href="{{locationUrl}}" target="_blank">Click to see</a>
+        </p>
+      </div>
+    </script>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"
+      integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script src="https://unpkg.com/mustache@latest"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.10.2/qs.js"
+      integrity="sha512-JidHop6IvWiS5SqBXi2A/WmPpQtnGH8Xp9UpfA8taySzHkzx5Tg92Px9ODIDZXDvG03yLa3a9reRmz5mHiTU2A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+
+    <script src="./js/chat.js"></script>
+  </body>
+</html>

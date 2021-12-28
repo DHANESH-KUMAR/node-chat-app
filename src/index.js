@@ -4,13 +4,14 @@ const express = require("express");
 const app = express();
 const Filter = require('bad-words');
 
+const { generateMessage, generateLocationMessage } = require("./utils/messages");
+
+
 //here we're creating http-server because Socket Server take httpPlane server
 const httpServer = http.createServer(app);
 
 const { Server } = require("socket.io");
 const io = new Server(httpServer);
-
-
 
 const publicPath = path.join(__dirname, "../public");
 app.use(express.static(publicPath))
@@ -19,36 +20,33 @@ app.get("/", (req, res) => {
     return res.sendFile("index.html");
 })
 
-let count = 0;
 
 //registering socket related configuration
 io.on("connection", (socket) => {
     console.log('A New WebSocket Connection is Establishing');
 
-    socket.broadcast.emit("onWelcome", "Welcome!!");
+    socket.on("SEND_join", ({ username, room }) => {
 
-    socket.emit("countValueUpdated", count);
-    //when a user disconnect with server we want to capture
+        socket.join(room);
 
+        //broadcasting to other connected user
+        socket.emit("RECEIVE_WelcomeMessage", generateMessage("Welcome!!"));
+        socket.broadcast.to(room).emit("RECEIVE_MessageFromServer", generateMessage(`${username} has joined!`));
 
-    socket.on("incrementCount", () => {
-        count++;
-        //line no 40 or below line emitting for specific connection or individual 
-        // socket.emit("countValueUpdated", count);
-
-        //we want to broadcast to all active connection there io object or global server for web-socket
-        //with the help of IO we can emitting the event which treat as broadcast
-        io.emit("countValueUpdated", count);
+        //socket.emit,io.emit,socket.broadcast.emit
+        //io.to.emit,socket.broadcast.to.emit
     });
 
-    socket.on("CaptureSentMessage", (message, callback) => {
-        const filter = new Filter();
 
+    //here we are capturing Event Sent By client
+    socket.on("SEND_MessageToServer", (message, callback) => {
+        const filter = new Filter();
         if (filter.isProfane(message)) {
             return callback({ "isError": true, "message": "Profanity is not allowed!" });
         }
 
-        io.emit("CaptureOnReceive", message);
+        //broadcasting to all include ourself
+        io.emit("RECEIVE_MessageFromServer", generateMessage(message));
 
         //here we're sending acknowledgement for client end
         callback({ "isError": false, "message": "Profanity is not allowed!" })
@@ -59,13 +57,15 @@ io.on("connection", (socket) => {
     });
 
     //we are capturing shared location
-    socket.on("ShareLocation", (position,callback) => {
-        console.log(position)
+    socket.on("SEND_LocationToServer", (position, callback) => {
         //below line we're sharing position to other available clients
         const location_URL = `https://google.com/maps?q=${position.latitude},${position.longitude}`
-        socket.broadcast.emit("ReceivedOtherUserLocation", location_URL);
+
+        //broadcasting location to Other Users
+        io.emit("RECEIVE_LocationFromServer", generateLocationMessage(location_URL));
         callback('Shared');
     });
+
 });
 
 const port = process.env.PORT || 3000
